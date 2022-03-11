@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export default function Todo(props) {
   const [isEditing, setEditing] = useState(false);
   const [newName, setNewName] = useState("");
+
+  const editFieldRef = useRef(null);
+  const editButtonRef = useRef(null);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -28,6 +31,7 @@ export default function Todo(props) {
           className="todo-text"
           type="text"
           onChange={handleChange}
+          ref={editFieldRef}
         />
       </div>
       <div className="btn-group">
@@ -35,6 +39,7 @@ export default function Todo(props) {
           type="button"
           className="btn todo-cancel"
           onClick={() => setEditing(false)}
+          ref={editButtonRef}
         >
           Cancel
           <span className="visually-hidden">renaming {props.name}</span>
@@ -74,6 +79,14 @@ export default function Todo(props) {
       </div>
     </div>
   );
+
+  useEffect(() => {
+    if (isEditing) {
+      editFieldRef.current.focus();
+    } else {
+      editButtonRef.current.focus();
+    }
+  }, [isEditing]);
 
   return <li className="todo">{isEditing ? editingTemplate : viewTemplate}</li>;
 }
