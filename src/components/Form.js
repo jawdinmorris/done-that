@@ -12,7 +12,7 @@ export default function Form(props) {
   }
 
   function handleChange(e) {
-      setName(e.target.value);
+    setName(e.target.value);
   }
 
   return (
