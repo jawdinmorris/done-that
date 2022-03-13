@@ -6,6 +6,7 @@ export default function Todo(props) {
 
   const editFieldRef = useRef(null);
   const editButtonRef = useRef(null);
+  const wasEditing = usePrevious(isEditing)
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -18,6 +19,14 @@ export default function Todo(props) {
 
   function handleChange(e) {
     setNewName(e.target.value);
+  }
+
+  function usePrevious(value) {
+    const ref = useRef();
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
   }
 
   const editingTemplate = (
@@ -39,7 +48,6 @@ export default function Todo(props) {
           type="button"
           className="btn todo-cancel"
           onClick={() => setEditing(false)}
-          ref={editButtonRef}
         >
           Cancel
           <span className="visually-hidden">renaming {props.name}</span>
@@ -66,7 +74,12 @@ export default function Todo(props) {
         </label>
       </div>
       <div className="btn-group">
-        <button type="button" className="btn" onClick={() => setEditing(true)}>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setEditing(true)}
+          ref={editButtonRef}
+        >
           Edit <span className="visually-hidden">{props.name}</span>
         </button>
         <button
@@ -81,12 +94,13 @@ export default function Todo(props) {
   );
 
   useEffect(() => {
-    if (isEditing) {
+    if (!wasEditing && isEditing) {
       editFieldRef.current.focus();
-    } else {
+    } 
+    if (wasEditing && !isEditing) {
       editButtonRef.current.focus();
     }
-  }, [isEditing]);
+  }, [wasEditing, isEditing]);
 
   return <li className="todo">{isEditing ? editingTemplate : viewTemplate}</li>;
 }

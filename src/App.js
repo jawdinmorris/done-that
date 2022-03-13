@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import Todo from "./components/Todo";
 import Form from "./components/Form";
 import FilterButton from "./components/FilterButton";
@@ -42,6 +42,7 @@ function App(props) {
     const newTask = { id: "todo-" + nanoid(), name: name, completed: false };
     setTasks([...tasks, newTask]);
   }
+
   function editTask(id, newName) {
     const updatedTasks = tasks.map((task) => {
       if (task.id === id) {
@@ -51,10 +52,12 @@ function App(props) {
     });
     setTasks(updatedTasks);
   }
+
   function deleteTask(id) {
     const updatedTasks = tasks.filter((task) => id !== task.id);
     setTasks(updatedTasks);
   }
+
   function toggleTaskCompleted(id) {
     const updatedTasks = tasks.map((task) => {
       if (task.id === id) {
@@ -65,15 +68,32 @@ function App(props) {
     setTasks(updatedTasks);
   }
 
+  function usePrevious(value) {
+    const ref = useRef();
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
+  }
+  useEffect(() => {
+    if (tasks.length - prevTaskLength === -1) {
+      listHeadingRef.current.focus();
+    }
+  }, [tasks.length, prevTaskLength]);
+
   const tasksNoun = taskList.length !== 1 ? "tasks" : "task";
   const headingText = `${taskList.length} ${tasksNoun} remaining`;
-
+  const listHeadingRef = useRef(null);
+  const prevTaskLength = usePrevious(tasks.length)
+  
   return (
     <div className="todoapp stack-large">
       <h1>Done That</h1>
       <Form addTask={addTask} />
       <div className="filters btn-group stack-exception">{filterList}</div>
-      <h2 id="list-heading">{headingText}</h2>
+      <h2 id="list-heading" tabIndex="-1" ref={listHeadingRef}>
+        {headingText}
+      </h2>
       <ul
         className="todo-list stack-large stack-exception"
         aria-labelledby="list-heading"
